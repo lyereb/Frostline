@@ -12,10 +12,13 @@ One hit and you shatter, respawning instantly at the last checkpoint. The clock 
 pnpm install
 pnpm dev      # PORT/HOST env respected
 pnpm build    # typecheck + production build + bundle budget
+pnpm preview  # serve dist/ locally at http://localhost:4173/
 pnpm test     # unit tests: rules, save, i18n, level geometry + autopilot playthrough
 pnpm smoke    # after build: headless playthrough + screenshots in shots/
 node scripts/shots.mjs http://127.0.0.1:3000/ /tmp/shots   # visual pass on a running dev server
 ```
+
+The production build writes a self-contained static site to `dist/`.
 
 ## SDK distance match
 
@@ -94,18 +97,18 @@ This build adapts Frostline Zero to phones held upright (landscape still works):
   thumb-zone layout, safe-area insets, touch-specific hints (`hint.*.touch` keys).
 - English and Simplified Chinese are both complete; `pnpm test` checks matching keys.
 
-## Scenes, soundtracks and mechanics
+## Scenes and mechanics
 
 Finishing runs unlocks Magma Run (lava), Whiteout Pass (blizzard) and Neon Circuit (cyber). They share the
-2.3 km course, checkpoints and finish line, and each adds its own soundtrack and mechanic
+2.3 km course, checkpoints, finish line and synthesized soundtrack. Each variant adds a mechanic
 (`src/game/level.ts` → `sceneMechanics`, `levelFor(scene)`):
 
-| Scene | Soundtrack | Mechanic |
-| --- | --- | --- |
-| Glacier Zero | original synth score | original course |
-| Magma Run | `assets/audio/lava.mp3` | lava vents (`geyser`) erupt on a cycle after a warning glow |
-| Whiteout Pass | `assets/audio/blizzard.mp3` | crosswind zones (`gusts`, `gustAt`) push the rider sideways |
-| Neon Circuit | `assets/audio/cyber.mp3` | phase walls (`phase`) jump between deck halves after a flicker |
+| Scene | Mechanic |
+| --- | --- |
+| Glacier Zero | original course |
+| Magma Run | lava vents (`geyser`) erupt on a cycle after a warning glow |
+| Whiteout Pass | crosswind zones (`gusts`, `gustAt`) push the rider sideways |
+| Neon Circuit | phase walls (`phase`) jump between deck halves after a flicker |
 
 ## Phone steering
 

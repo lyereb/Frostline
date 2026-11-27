@@ -12,7 +12,7 @@ import { Effects } from './fx'
 import { gustAt, levelFor, type Level } from './level'
 import { RiderView } from './rider'
 import { createRun, die, finish, reachCheckpoint, tick, type RunState } from './rules'
-import { sceneDefinition, type SceneId } from './scenes'
+import type { SceneId } from './scenes'
 import { createSim, respawn, stepSim, type DeathCause, type SimEvent, type SimInput, type SimState } from './sim'
 import { World } from './world'
 
@@ -76,7 +76,6 @@ export class Game {
   constructor(private readonly renderer: Renderer, private readonly input: Input, private readonly audio: Audio, private readonly hooks: GameHooks, sceneId: SceneId = 'glacier') {
     this.sceneId = sceneId
     this.level = levelFor(sceneId)
-    this.audio.setTrack(sceneDefinition(sceneId).music)
     this.world = new World(this.level, renderer.shadowMapSize, sceneId)
     this.world.buildChunks()
     const scene = this.world.scene
@@ -89,7 +88,6 @@ export class Game {
     if (this.sceneId === sceneId) return
     this.sceneId = sceneId
     this.level = levelFor(sceneId)
-    this.audio.setTrack(sceneDefinition(sceneId).music)
     this.disposeWorld()
     this.world = new World(this.level, this.renderer.shadowMapSize, sceneId)
     this.sim = createSim(this.level, 0)

@@ -21,12 +21,6 @@ export class Audio {
   private stepIndex = 0
   private musicOn = false
   private intensity = 0
-  /** Scene soundtrack (null = the synthesized glacier score). */
-  private trackUrl: string | null = null
-  private trackSrc?: AudioBufferSourceNode
-  private trackGain?: GainNode
-  private readonly trackCache = new Map<string, Promise<AudioBuffer | null>>()
-  private trackToken = 0
 
   constructor() {
     this.ctx = new AudioContext()
@@ -147,79 +141,6 @@ export class Audio {
   /** 0 = title (pads + arp), 1 = run (drums and bass join). */
   setIntensity(level: number): void {
     this.intensity = level
-    if (this.trackGain) this.trackGain.gain.setTargetAtTime(this.trackLevel(), this.ctx.currentTime, 0.4)
-  }
-
-  /**
-   * Select the soundtrack for a scene. A URL streams and loops a decoded track on the music bus;
-   * null returns to the step-sequenced synth score. Safe to call before audio is unlocked.
-   */
-  setTrack(url: string | null): void {
-    if (url === this.trackUrl) return
-    this.trackUrl = url
-    this.trackToken += 1
-    this.fadeOutTrack()
-    if (this.musicOn) this.playTrack()
-  }
-
-  /** Warm the decode cache so a scene switch starts the music without a gap. */
-  preloadTrack(url: string | null): void {
-    if (url) void this.loadTrack(url)
-  }
-
-  private loadTrack(url: string): Promise<AudioBuffer | null> {
-    let p = this.trackCache.get(url)
-    if (!p) {
-      p = fetch(url)
-        .then(r => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(String(r.status)))))
-        .then(b => this.ctx.decodeAudioData(b))
-        .catch(() => {
-          this.trackCache.delete(url)
-          return null
-        })
-      this.trackCache.set(url, p)
-    }
-    return p
-  }
-
-  private playTrack(): void {
-    const url = this.trackUrl
-    if (!url) return
-    const token = this.trackToken
-    void this.loadTrack(url).then(buffer => {
-      if (!buffer || token !== this.trackToken || !this.musicOn || this.trackSrc) return
-      const src = this.ctx.createBufferSource()
-      src.buffer = buffer
-      src.loop = true
-      // Trim the decoder's leading/trailing padding so the loop seam stays tight.
-      src.loopStart = 0.03
-      src.loopEnd = Math.max(1, buffer.duration - 0.05)
-      const g = this.ctx.createGain()
-      const t = this.ctx.currentTime
-      g.gain.setValueAtTime(0.0001, t)
-      g.gain.exponentialRampToValueAtTime(this.trackLevel(), t + 1.2)
-      src.connect(g).connect(this.music)
-      src.start(t + 0.02, 0.03)
-      this.trackSrc = src
-      this.trackGain = g
-    })
-  }
-
-  private trackLevel(): number {
-    // Title plays the track softer; the run brings it to full level.
-    return this.intensity > 0.5 ? 0.9 : 0.5
-  }
-
-  private fadeOutTrack(): void {
-    const src = this.trackSrc
-    const g = this.trackGain
-    this.trackSrc = undefined
-    this.trackGain = undefined
-    if (!src || !g) return
-    const t = this.ctx.currentTime
-    g.gain.cancelScheduledValues(t)
-    g.gain.setTargetAtTime(0.0001, t, 0.25)
-    src.stop(t + 1.2)
   }
 
   startMusic(): void {
@@ -238,18 +159,14 @@ export class Audio {
     }
     this.seqTimer = window.setInterval(tick, 40)
     tick()
-    this.playTrack()
   }
 
   stopMusic(): void {
     this.musicOn = false
     clearInterval(this.seqTimer)
-    this.fadeOutTrack()
   }
 
   private scheduleStep(i: number, t: number): void {
-    // Scene soundtracks replace the synth score entirely.
-    if (this.trackUrl) return
     const step = i % 16
     const bar = Math.floor(i / 16) % 4
     const roots = [55, 43.65, 49, 41.2] // A1 F1 G1 E1

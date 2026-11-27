@@ -25,8 +25,6 @@ export type SceneDefinition = {
   sun: number
   hemiSky: number
   hemiGround: number
-  /** Stable Storage address of the scene's looping soundtrack (glacier keeps the synth score). */
-  music: string | null
   /** i18n key describing the scene-only obstacle mechanic. */
   mechanicKey: string
 }
@@ -57,7 +55,6 @@ export const SCENES: readonly SceneDefinition[] = [
     sun: 0xe4ecff,
     hemiSky: 0xc4dcff,
     hemiGround: 0x2b1c63,
-    music: null,
     mechanicKey: 'mechanic.glacier',
   },
   {
@@ -85,7 +82,6 @@ export const SCENES: readonly SceneDefinition[] = [
     sun: 0xffc28a,
     hemiSky: 0xffa36d,
     hemiGround: 0x2b0715,
-    music: '/manus-storage/game/sha256/9701417e1ef237fb13166e84c58a541753dac877123b6e7634853f3be2e97fde.mp3',
     mechanicKey: 'mechanic.lava',
   },
   {
@@ -113,7 +109,6 @@ export const SCENES: readonly SceneDefinition[] = [
     sun: 0xd5efff,
     hemiSky: 0xd9f5ff,
     hemiGround: 0x244363,
-    music: '/manus-storage/game/sha256/aa0fca27b1c661fadcc423212d9f75787f42b9fabfe20c06f1878373553bef79.mp3',
     mechanicKey: 'mechanic.blizzard',
   },
   {
@@ -141,7 +136,6 @@ export const SCENES: readonly SceneDefinition[] = [
     sun: 0xa7b8ff,
     hemiSky: 0x8d9dff,
     hemiGround: 0x100a35,
-    music: '/manus-storage/game/sha256/4b3131a449d90d9fe9cf2c5ba8fd7e1a4c05d7310e505300f94fe40e56ad27cc.mp3',
     mechanicKey: 'mechanic.cyber',
   },
 ]

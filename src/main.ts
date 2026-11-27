@@ -190,7 +190,6 @@ async function boot(): Promise<StartDistanceMatch> {
     ui.notice(i18n.t(status === 'denied' ? 'tilt.denied' : 'tilt.unsupported'))
   }
   touch.setMode(save.data.steerMode, save.data.steerSensitivity, false)
-  audio.preloadTrack(sceneDefinition(save.data.selectedScene).music)
   window.setTimeout(() => { if (ui.screen === 'boot') ui.show('title') }, 250)
   // Any first gesture on the title unlocks audio so the title music can play.
   const unlock = () => {
