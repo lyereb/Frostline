@@ -22,8 +22,8 @@ The production build writes a self-contained static site to `dist/`.
 ## WhackGameSDK community PK
 
 The SDK build always opens the lobby. An incomplete or invalid room link opens the lobby with a
-connection failure dialog. The lobby's Debug button shows connection logs and can call
-`JSQueryInitInfo` to check the App user bridge.
+connection failure dialog. The lobby's Debug button shows connection logs, lists detected App
+bridges, and can call `JSQueryInitInfo` to check the App user bridge.
 Open a live room using the App's room link:
 
 ```text

@@ -32,6 +32,8 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     await page.getByRole('button', { name: '调试', exact: true }).click()
     await page.getByRole('button', { name: '调用 JSQueryInitInfo' }).click()
     assert.match(await page.locator('.whack-duel-log-dialog pre').innerText(), /JSQueryInitInfo 调用失败[\s\S]+bridge_missing/)
+    await page.getByRole('button', { name: '扫描原生桥' }).click()
+    assert.match(await page.locator('.whack-duel-log-dialog pre').innerText(), /未发现原生桥对象/)
     await page.getByRole('dialog', { name: '调试' }).getByRole('button', { name: '关闭', exact: true }).click()
     await page.goto(`${baseUrl}?group_id=wrong&game_id=31&token=fake-url-secret`)
     await checkFailure(page, /无效字段：group_id、chat_room_id/)
@@ -49,6 +51,9 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
           } })
         },
       }
+      Object.defineProperty(window, 'NativeTestBridge', {
+        value: { postMessage() { throw new Error('Bridge scan must not call native methods') }, secret: 'test-bridge-secret' },
+      })
     })
     let calls = 0
     await page.route('**/games/room/info', async route => {
@@ -87,6 +92,11 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     const debugLog = await page.locator('.whack-duel-log-dialog pre').innerText()
     assert.match(debugLog, /JSQueryInitInfo 调用成功[\s\S]+"id": "20001"[\s\S]+"hasHttpCredential": true[\s\S]+"hasWimCredential": true/)
     assert.doesNotMatch(debugLog, /test-http-secret|test-wim-secret/)
+    assert.equal(await page.evaluate(() => window.initInfoCalls), 2)
+    await page.getByRole('button', { name: '扫描原生桥' }).click()
+    const bridgeLog = await page.locator('.whack-duel-log-dialog pre').innerText()
+    assert.match(bridgeLog, /原生桥扫描结果[\s\S]+window\.WKWebViewJavascriptBridge[\s\S]+JSQueryInitInfo[\s\S]+window\.NativeTestBridge[\s\S]+postMessage/)
+    assert.doesNotMatch(bridgeLog, /test-http-secret|test-wim-secret|test-bridge-secret/)
     assert.equal(await page.evaluate(() => window.initInfoCalls), 2)
     if (screenshotsDir) await page.screenshot({ path: `${screenshotsDir}/whack-app-debug.png` })
     await page.getByRole('dialog', { name: '调试' }).getByRole('button', { name: '关闭', exact: true }).click()
