@@ -22,7 +22,7 @@ The production build writes a self-contained static site to `dist/`.
 ## WhackGameSDK community PK
 
 The SDK build always opens the lobby. An incomplete or invalid room link opens the lobby with a
-connection failure dialog. The dialog can open the SDK logs with details about the failed step.
+connection failure dialog. The lobby's Log button shows details about the failed step.
 Open a live room using the App's room link:
 
 ```text
