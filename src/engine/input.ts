@@ -46,7 +46,7 @@ export class Input {
       this.listeners.push(() => target.removeEventListener(type, fn as EventListener, opts))
     }
     on(window, 'keydown', e => {
-      if (e.repeat) return
+      if (e.repeat || canvas.closest('[hidden]')) return
       this.keys.add(e.code)
       this.method = 'keyboard'
       for (const [action, codes] of Object.entries(KEY_BINDINGS) as [Action, string[]][]) {
@@ -167,6 +167,11 @@ export class Input {
 
   endFrame(): void {
     this.pressed_.clear()
+  }
+
+  reset(): void {
+    this.keys.clear()
+    this.endFrame()
   }
 
   dispose(): void {

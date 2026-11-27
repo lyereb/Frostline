@@ -9,7 +9,7 @@ async function walk(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name)
     if (entry.isDirectory()) await walk(path)
-    else if (entry.name !== 'sw.js') files.push('/' + posix.normalize(relative(root, path).split('\\').join('/')))
+    else if (!['sw.js', 'sdk.config.json', 'version.json'].includes(entry.name)) files.push(posix.normalize(relative(root, path).split('\\').join('/')))
   }
 }
 

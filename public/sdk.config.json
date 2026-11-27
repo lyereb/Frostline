@@ -1,0 +1,9 @@
+{
+  "version": "1.00",
+  "title": "霜线·零点",
+  "lobby": {
+    "mode": "duel",
+    "rules": "60 秒内累计滑行距离最多的玩家获胜。摔倒后返回检查点，倒计时继续。",
+    "iconUrl": "./pwa/icon-192.png"
+  }
+}

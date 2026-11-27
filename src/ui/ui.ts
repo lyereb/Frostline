@@ -327,7 +327,7 @@ export class Ui {
   }
 
   private onKey(e: KeyboardEvent): void {
-    if (this.screen === 'hud' || this.screen === 'boot') return
+    if (this.screen === 'hud' || this.screen === 'boot' || this.root.closest('[hidden]')) return
     if ((e.code === 'Escape' || e.code === 'Backspace') && this.screen !== 'title') {
       if (this.screen !== 'pause' && this.screen !== 'results') {
         e.preventDefault()

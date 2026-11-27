@@ -4,8 +4,8 @@
   "description": "手机竖屏 3D 单板滑雪时间竞速游戏。",
   "lang": "zh-CN",
   "dir": "ltr",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait-primary",
@@ -14,13 +14,13 @@
   "categories": ["games", "entertainment"],
   "icons": [
     {
-      "src": "/pwa/icon-192.png",
+      "src": "./pwa/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/pwa/icon-512.png",
+      "src": "./pwa/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

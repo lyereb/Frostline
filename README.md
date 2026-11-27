@@ -20,7 +20,29 @@ node scripts/shots.mjs http://127.0.0.1:3000/ /tmp/shots   # visual pass on a ru
 
 The production build writes a self-contained static site to `dist/`.
 
-## SDK distance match
+## WhackGameSDK community PK
+
+The App's room link opens the SDK lobby directly:
+
+```text
+https://game.example.com/frostline/index.html?chat_room_id=G_123456&group_id=0&game_id=31
+```
+
+Use the IDs from the App's room link. The SDK reads the player and tokens from the native App bridge.
+After both players are seated, the host starts the round and the WIM `game_start` broadcast starts the
+60-second distance race for both players. Frostline returns the local player's metres as `MAX_SCORE`.
+The SDK submits the score to `POST /games/room/result` and displays the winner from the WIM result.
+
+Configure Frostline on the game server with the `MAX_SCORE` rule, `result_direction: 2`, and
+`rule_config: "{\"unit\":\"米\"}"`. Allow time for the 60-second race and the final score request before
+the server's deadline. For separate API/WIM hosts, set `roomApiBaseUrl` and `roomWsUrl` in
+`public/sdk.config.json`. The defaults use the page's origin for the HTTP API and its `/ws` for WIM.
+
+On Windows, run `打包游戏.cmd` to build `release/Game.zip` with `version.json` beside `index.html`.
+To refresh the bundled SDK, run `npm pack --pack-destination <Frostline>/vendor` in the SDK repository,
+then reinstall the matching archive in Frostline with `pnpm add whack-game-sdk@file:vendor/<archive>`.
+
+### Standalone distance test
 
 After the page entry module loads, the host can start a round and await the local player's result:
 
@@ -33,7 +55,7 @@ run rejects the promise. All players start on the glacier course with a 60-secon
 The score is the cumulative forward distance skied, rounded down to whole metres. Respawning
 costs time, the teleport adds no distance, and skiing the same stretch again counts. Crossing
 the finish starts another lap. The clock continues in the background; a suspended page delivers
-its result when the browser resumes. The host handles matchmaking and compares the returned scores.
+its result when the browser resumes.
 
 ## Course (≈ 2.3 km, 8 sections, 7 checkpoints)
 

@@ -385,7 +385,7 @@ export class TouchControls {
   }
 
   // ─── helpers ────────────────────────────────────────────────────────────
-  private releaseAll(): void {
+  releaseAll(): void {
     for (const set of this.held.values()) set.clear()
     for (const btn of this.layer.querySelectorAll('.is-down')) btn.classList.remove('is-down')
     this.swipes.clear()

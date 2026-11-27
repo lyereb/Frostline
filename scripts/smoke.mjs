@@ -5,6 +5,7 @@ import { spawn } from 'node:child_process'
 import { mkdirSync } from 'node:fs'
 import { chromium } from 'playwright'
 import { checkDistanceMatch } from './check-distance-match.mjs'
+import { checkWhackLobby } from './check-whack-lobby.mjs'
 
 const port = 4300 + Math.floor(Math.random() * 500)
 const url = `http://127.0.0.1:${port}/`
@@ -180,6 +181,7 @@ try {
   await landPage.waitForTimeout(900)
   await landPage.screenshot({ path: `${out}/12-phone-landscape-hud.png` })
   await land.close()
+  await checkWhackLobby(browser, url)
   if (errors.length) throw new Error(`console errors:\n  ${errors.join('\n  ')}`)
   await browser.close()
   cleanup()
