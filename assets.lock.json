@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "groups": {
+    "audio": {
+      "name": "Audio",
+      "order": 20
+    },
+    "share": {
+      "name": "Share",
+      "order": 10
+    }
+  },
+  "bundles": {},
+  "assets": {
+    "assets/audio/blizzard-loop.mp3": {
+      "path": "/manus-storage/game/sha256/aa0fca27b1c661fadcc423212d9f75787f42b9fabfe20c06f1878373553bef79.mp3",
+      "sha256": "sha256:aa0fca27b1c661fadcc423212d9f75787f42b9fabfe20c06f1878373553bef79",
+      "size": 1061138,
+      "assetType": "audio",
+      "groupId": "audio"
+    },
+    "assets/audio/cyber-loop.mp3": {
+      "path": "/manus-storage/game/sha256/4b3131a449d90d9fe9cf2c5ba8fd7e1a4c05d7310e505300f94fe40e56ad27cc.mp3",
+      "sha256": "sha256:4b3131a449d90d9fe9cf2c5ba8fd7e1a4c05d7310e505300f94fe40e56ad27cc",
+      "size": 1110353,
+      "assetType": "audio",
+      "groupId": "audio"
+    },
+    "assets/audio/lava-loop.mp3": {
+      "path": "/manus-storage/game/sha256/9701417e1ef237fb13166e84c58a541753dac877123b6e7634853f3be2e97fde.mp3",
+      "sha256": "sha256:9701417e1ef237fb13166e84c58a541753dac877123b6e7634853f3be2e97fde",
+      "size": 1112234,
+      "assetType": "audio",
+      "groupId": "audio"
+    },
+    "assets/share/favicon.png": {
+      "path": "/manus-storage/game/sha256/426cb81e7ec71a7a69aa2b784558a5b78db590fed43d36305ab7b86ee0802ad7.png",
+      "sha256": "sha256:426cb81e7ec71a7a69aa2b784558a5b78db590fed43d36305ab7b86ee0802ad7",
+      "size": 55217,
+      "assetType": "image",
+      "groupId": "share"
+    },
+    "assets/share/og.png": {
+      "path": "/manus-storage/game/sha256/b065e75ee81d1e5e45a29ffba6902fc1eb7bddc33aec9bc5295b96e02c6af638.png",
+      "sha256": "sha256:b065e75ee81d1e5e45a29ffba6902fc1eb7bddc33aec9bc5295b96e02c6af638",
+      "size": 1106805,
+      "assetType": "image",
+      "groupId": "share"
+    }
+  }
+}

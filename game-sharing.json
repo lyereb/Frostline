@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "title": "霜线·零点 竖屏版",
+  "description": "为手机竖屏重新打造的 3D 单板滑雪竞速：拖动摇杆转向、上滑跳跃、下滑急坠，在雪崩追击下冲过 2.3 公里冰川赛道。支持中文 / English。",
+  "defaultCaptions": {
+    "x": "霜线·零点 竖屏版 —— 单手也能玩的 3D 冰川竞速，躲开冰晶、越过断崖、甩掉雪崩！",
+    "facebook": "霜线·零点 竖屏版：为手机竖屏重新打造的 3D 单板滑雪竞速，你能冲过 2.3 公里冰川赛道吗？",
+    "reddit": "Frostline Zero (Portrait Edition) — a 3D snowboard time trial rebuilt for phones: floating steer pad, swipe to jump & slam, outrun the avalanche.",
+    "discord": "霜线·零点 竖屏版 上线：拖摇杆转向、上滑跳、下滑坠，来挑战冰川最快时间！"
+  },
+  "assets": { "og": "assets/share/og.png", "favicon": "assets/share/favicon.png" }
+}
