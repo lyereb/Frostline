@@ -54,7 +54,7 @@ export async function checkWhackLobby(browser, baseUrl, screenshotsDir) {
       switch (path) {
         case '/games/room/info':
           await respond({ ...room, result_rules: [rule], status, locked: false, creator: { user_id: 20001 },
-            user: { user_id: userId }, players })
+            user: { user_id: userId }, players, game_rule: '滑行距离最远者获胜。\n'.repeat(12) })
           break
         case '/games/room/apply': {
           const user = { user_id: userId, nick_name: '滑手二' }
@@ -106,11 +106,20 @@ export async function checkWhackLobby(browser, baseUrl, screenshotsDir) {
   }
 
   try {
-    const host = await open(20001)
-    const guest = await open(20002)
+    const mobile = { width: 360, height: 620 }
+    const host = await open(20001, mobile)
+    const guest = await open(20002, mobile)
     const spectator = await open(20003, { width: 390, height: 844 })
-    await guest.locator('.whack-duel-seat').nth(1).click()
-    await host.getByRole('button', { name: '开始对战' }).click()
+    const apply = guest.getByRole('button', { name: '报名', exact: true })
+    const start = host.getByRole('button', { name: '开始对战' })
+    for (const button of [apply, start]) {
+      const bounds = await button.boundingBox()
+      assert.ok(bounds && bounds.y >= 0 && bounds.y + bounds.height <= mobile.height)
+    }
+    assert.ok(await guest.locator('.whack-duel-rules-text').evaluate(el => el.scrollHeight > el.clientHeight))
+    if (screenshotsDir) await guest.screenshot({ path: `${screenshotsDir}/whack-mobile-lobby.png` })
+    await apply.click()
+    await start.click()
     for (const page of [host, guest]) {
       await page.locator('.whack-sdk-game #frostline [data-screen="hud"].is-active').waitFor()
       await page.waitForFunction(() => window.__game.game.hud().distanceMeters > 3)

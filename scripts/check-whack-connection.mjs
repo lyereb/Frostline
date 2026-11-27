@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 
 export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
-  const context = await browser.newContext({ serviceWorkers: 'block', viewport: { width: 390, height: 844 } })
+  const context = await browser.newContext({ serviceWorkers: 'block', viewport: { width: 360, height: 620 } })
   const room = { group_id: '0', game_id: '31', chat_room_id: 'G_failure' }
   const roomUrl = `${baseUrl}?${new URLSearchParams(room)}`
 
@@ -10,9 +10,15 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     const notice = page.getByRole('dialog', { name: '服务器连接失败' })
     await notice.waitFor()
     assert.equal(await page.locator('#frostline').isVisible(), false)
+    assert.equal(await page.locator('.whack-sdk > .whack-sdk-header').count(), 0)
     assert.equal(await page.locator('.whack-duel-seat:enabled').count(), 0)
     assert.equal(await notice.getByRole('button').count(), 1)
     await notice.getByRole('button', { name: '知道了' }).click()
+    const action = page.getByRole('button', { name: /^(报名|开始对战)$/ })
+    assert.equal(await action.isDisabled(), true)
+    const footer = await action.boundingBox()
+    assert.ok(footer && footer.y >= 0 && footer.y + footer.height <= 620)
+    assert.equal(await page.getByRole('button', { name: '重新连接' }).isVisible(), false)
     await page.getByRole('button', { name: '调试', exact: true }).click()
     const logDialog = page.locator('.whack-duel-log-dialog[open]')
     await logDialog.waitFor()
@@ -21,6 +27,11 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     assert.match(log, expectedLog)
     assert.doesNotMatch(log, /test-http-secret|test-wim-secret|fake-url-secret/)
     await logDialog.getByRole('button', { name: '关闭', exact: true }).click()
+  }
+
+  async function reconnect(page) {
+    await page.getByRole('button', { name: '调试', exact: true }).click()
+    await page.getByRole('dialog', { name: '调试' }).getByRole('button', { name: '重新连接' }).click()
   }
 
   try {
@@ -100,9 +111,9 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     assert.equal(await page.evaluate(() => window.initInfoCalls), 2)
     if (screenshotsDir) await page.screenshot({ path: `${screenshotsDir}/whack-app-debug.png` })
     await page.getByRole('dialog', { name: '调试' }).getByRole('button', { name: '关闭', exact: true }).click()
-    await page.getByRole('button', { name: '重新连接' }).click()
+    await reconnect(page)
     await checkFailure(page, /WIM WebSocket 连接已断开/)
-    await page.getByRole('button', { name: '重新连接' }).click()
+    await reconnect(page)
     await page.locator('.whack-sdk-status[data-connection="open"]').waitFor({ state: 'attached' })
     assert.equal(calls, 2)
     assert.equal(connections, 2)
