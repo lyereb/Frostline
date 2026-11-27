@@ -12,8 +12,8 @@ importers:
         specifier: ^0.186.1
         version: 0.186.1
       whack-game-sdk:
-        specifier: file:vendor/whack-game-sdk-0.1.1.tgz
-        version: file:vendor/whack-game-sdk-0.1.1.tgz
+        specifier: file:vendor/whack-game-sdk-0.1.2.tgz
+        version: file:vendor/whack-game-sdk-0.1.2.tgz
     devDependencies:
       '@types/three':
         specifier: ^0.186.0
@@ -438,9 +438,9 @@ packages:
       jsdom:
         optional: true
 
-  whack-game-sdk@file:vendor/whack-game-sdk-0.1.1.tgz:
-    resolution: {integrity: sha512-e46p0Dq9EexJzH4lck6LKP7ioUivE5aqH2CwH/bSdAjz3DZqNGaZ6jk8yLw7Vrd6tVlkAhMDSCwCsgtK7uBMAQ==, tarball: file:vendor/whack-game-sdk-0.1.1.tgz}
-    version: 0.1.1
+  whack-game-sdk@file:vendor/whack-game-sdk-0.1.2.tgz:
+    resolution: {integrity: sha512-Xc0v1L07pQI6rjcRGrODi1zQTJg6ZahcUnVWLk4IHqV2pUco1s/Ab0jYehG35s+152sOJciMDVrdpinHZuSTZA==, tarball: file:vendor/whack-game-sdk-0.1.2.tgz}
+    version: 0.1.2
     hasBin: true
 
   why-is-node-running@3.2.2:
@@ -710,6 +710,6 @@ snapshots:
     transitivePeerDependencies:
       - msw
 
-  whack-game-sdk@file:vendor/whack-game-sdk-0.1.1.tgz: {}
+  whack-game-sdk@file:vendor/whack-game-sdk-0.1.2.tgz: {}
 
   why-is-node-running@3.2.2: {}

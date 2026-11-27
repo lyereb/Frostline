@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 
 // Exercise the shipped SDK with two isolated browser sessions and the documented wire protocol.
-export async function checkWhackLobby(browser, baseUrl) {
+export async function checkWhackLobby(browser, baseUrl, screenshotsDir) {
   const room = { group_id: 0, game_id: 31, chat_room_id: 'G_frostline' }
   const rule = { rule_code: 'MAX_SCORE', result_direction: 2, priority_weight: 1, rule_config: '{"unit":"米"}' }
   const players = [{ index: 1, status: 1, user: { user_id: 20001, nick_name: '滑手一' } }]
@@ -19,8 +19,8 @@ export async function checkWhackLobby(browser, baseUrl) {
     }
   }
 
-  async function open(userId) {
-    const context = await browser.newContext({ locale: 'zh-CN', serviceWorkers: 'block' })
+  async function open(userId, viewport) {
+    const context = await browser.newContext({ locale: 'zh-CN', serviceWorkers: 'block', viewport })
     contexts.push(context)
     await context.addInitScript(id => {
       window.WKWebViewJavascriptBridge = {
@@ -107,12 +107,32 @@ export async function checkWhackLobby(browser, baseUrl) {
   try {
     const host = await open(20001)
     const guest = await open(20002)
+    const spectator = await open(20003, { width: 390, height: 844 })
     await guest.locator('.whack-duel-seat').nth(1).click()
     await host.getByRole('button', { name: '开始对战' }).click()
     for (const page of [host, guest]) {
       await page.locator('.whack-sdk-game #frostline [data-screen="hud"].is-active').waitFor()
       await page.waitForFunction(() => window.__game.game.hud().distanceMeters > 3)
+      assert.equal(await page.locator('.whack-duel-started-dialog[open]').count(), 0)
     }
+    const notice = spectator.getByRole('dialog', { name: '游戏已开始' })
+    await notice.waitFor()
+    if (screenshotsDir) await spectator.screenshot({ path: `${screenshotsDir}/13-whack-started-notice.png` })
+    await notice.getByRole('heading', { name: '游戏已开始' }).click()
+    assert.equal(await notice.isVisible(), true)
+    await spectator.mouse.click(5, 5)
+    await notice.waitFor({ state: 'hidden' })
+    const statusLabel = spectator.locator('.whack-duel-match-status')
+    assert.equal(await statusLabel.innerText(), '游戏已开始')
+    assert.equal(await statusLabel.isVisible(), true)
+    assert.equal(await spectator.locator('#frostline').isVisible(), false)
+    assert.equal(await spectator.locator('.whack-duel-seat:enabled').count(), 0)
+    if (screenshotsDir) await spectator.screenshot({ path: `${screenshotsDir}/14-whack-started-lobby.png` })
+
+    const lateSpectator = await open(20004)
+    assert.equal(await lateSpectator.locator('.whack-duel-match-status').isVisible(), true)
+    assert.equal(await lateSpectator.locator('.whack-duel-started-dialog[open]').count(), 0)
+
     await host.clock.fastForward(60_000)
     await host.locator('.whack-settlement[data-status="waiting"]').waitFor()
     assert.match(await host.locator('.whack-settlement-score dd').innerText(), /^\d+ 米$/)
@@ -123,7 +143,10 @@ export async function checkWhackLobby(browser, baseUrl) {
       assert.equal(await page.locator('#frostline').isVisible(), false)
       assert.equal(await page.evaluate(() => window.__game.game.mode), 'attract')
     }
+    await statusLabel.waitFor({ state: 'hidden' })
+    assert.equal(scores.size, 2)
     console.log('smoke: both WhackGameSDK players joined, raced, submitted metres, and received the WIM result')
+    console.log('smoke: spectator dismissed the start notice from outside and stayed in the lobby')
   } finally {
     await Promise.all(contexts.map(context => context.close()))
   }

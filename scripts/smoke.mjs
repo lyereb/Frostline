@@ -181,7 +181,7 @@ try {
   await landPage.waitForTimeout(900)
   await landPage.screenshot({ path: `${out}/12-phone-landscape-hud.png` })
   await land.close()
-  await checkWhackLobby(browser, url)
+  await checkWhackLobby(browser, url, out)
   if (errors.length) throw new Error(`console errors:\n  ${errors.join('\n  ')}`)
   await browser.close()
   cleanup()
