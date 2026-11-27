@@ -38,7 +38,9 @@ Configure Frostline on the game server with the `MAX_SCORE` rule, `result_direct
 the server's deadline. For separate API/WIM hosts, set `roomApiBaseUrl` and `roomWsUrl` in
 `public/sdk.config.json`. The defaults use the page's origin for the HTTP API and its `/ws` for WIM.
 
-On Windows, run `打包游戏.cmd` to build `release/Game.zip` with `version.json` beside `index.html`.
+On Windows, install the project dependencies once with `npx --yes pnpm@10.18.0 install --frozen-lockfile`.
+Then run `打包游戏.cmd` to build `release/Game.zip` with `version.json` beside `index.html`. The script
+uses `npm run build` and the installed project tools.
 To refresh the bundled SDK, run `npm pack --pack-destination <Frostline>/vendor` in the SDK repository,
 then reinstall the matching archive in Frostline with `pnpm add whack-game-sdk@file:vendor/<archive>`.
 

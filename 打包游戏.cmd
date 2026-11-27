@@ -8,8 +8,8 @@ set "WHACK_PACK_SELF=%~f0"
 set "result=1"
 pushd "%~dp0" || goto end
 
-rem Build Frostline before packaging the SDK release.
-call pnpm.cmd build || goto done
+rem Build with the project dependencies and the npm bundled with Node.js.
+call npm.cmd run build || goto done
 
 "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -NonInteractive -Command "$parts = [IO.File]::ReadAllText($env:WHACK_PACK_SELF) -split '(?m)^:PACK_SCRIPT\r?$', 2; & ([scriptblock]::Create($parts[1]))"
 set "result=%errorlevel%"
