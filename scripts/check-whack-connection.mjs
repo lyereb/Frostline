@@ -43,7 +43,7 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     // A complete room link still keeps the lobby visible on an API error.
     await context.addInitScript(() => {
       window.initInfoCalls = 0
-      window.WKWebViewJavascriptBridge = {
+      window.Android = {
         JSQueryInitInfo() {
           window.initInfoCalls++
           return JSON.stringify({ user: {
@@ -90,12 +90,12 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     await page.getByRole('button', { name: '调试', exact: true }).click()
     await page.getByRole('button', { name: '调用 JSQueryInitInfo' }).click()
     const debugLog = await page.locator('.whack-duel-log-dialog pre').innerText()
-    assert.match(debugLog, /JSQueryInitInfo 调用成功[\s\S]+"id": "20001"[\s\S]+"hasHttpCredential": true[\s\S]+"hasWimCredential": true/)
+    assert.match(debugLog, /JSQueryInitInfo 调用成功[\s\S]+"bridge": "window.Android"[\s\S]+"id": "20001"[\s\S]+"hasHttpCredential": true[\s\S]+"hasWimCredential": true/)
     assert.doesNotMatch(debugLog, /test-http-secret|test-wim-secret/)
     assert.equal(await page.evaluate(() => window.initInfoCalls), 2)
     await page.getByRole('button', { name: '扫描原生桥' }).click()
     const bridgeLog = await page.locator('.whack-duel-log-dialog pre').innerText()
-    assert.match(bridgeLog, /原生桥扫描结果[\s\S]+window\.WKWebViewJavascriptBridge[\s\S]+JSQueryInitInfo[\s\S]+window\.NativeTestBridge[\s\S]+postMessage/)
+    assert.match(bridgeLog, /原生桥扫描结果[\s\S]+window\.Android[\s\S]+JSQueryInitInfo[\s\S]+window\.NativeTestBridge[\s\S]+postMessage/)
     assert.doesNotMatch(bridgeLog, /test-http-secret|test-wim-secret|test-bridge-secret/)
     assert.equal(await page.evaluate(() => window.initInfoCalls), 2)
     if (screenshotsDir) await page.screenshot({ path: `${screenshotsDir}/whack-app-debug.png` })

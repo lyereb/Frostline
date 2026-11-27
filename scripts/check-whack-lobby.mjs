@@ -24,7 +24,7 @@ export async function checkWhackLobby(browser, baseUrl, screenshotsDir) {
     const context = await browser.newContext({ locale: 'zh-CN', serviceWorkers: 'block', viewport })
     contexts.push(context)
     await context.addInitScript(id => {
-      window.WKWebViewJavascriptBridge = {
+      window.Android = {
         JSQueryInitInfo: () => JSON.stringify({ user: {
           user_id: String(id), auth_token: `http-${id}`, im_token: `wim-${id}`,
         } }),
