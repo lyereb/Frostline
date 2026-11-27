@@ -15,14 +15,15 @@ pnpm build    # typecheck + production build + bundle budget
 pnpm preview  # serve dist/ locally at http://localhost:4173/
 pnpm test     # unit tests: rules, save, i18n, level geometry + autopilot playthrough
 pnpm smoke    # after build: headless playthrough + screenshots in shots/
-node scripts/shots.mjs http://127.0.0.1:3000/ /tmp/shots   # visual pass on a running dev server
 ```
 
 The production build writes a self-contained static site to `dist/`.
 
 ## WhackGameSDK community PK
 
-The App's room link opens the SDK lobby directly:
+The SDK build always opens the lobby. An incomplete or invalid room link opens the lobby with a
+connection failure dialog. The dialog can open the SDK logs with details about the failed step.
+Open a live room using the App's room link:
 
 ```text
 https://game.example.com/frostline/index.html?chat_room_id=G_123456&group_id=0&game_id=31
@@ -44,20 +45,13 @@ uses `npm run build` and the installed project tools.
 To refresh the bundled SDK, run `npm pack --pack-destination <Frostline>/vendor` in the SDK repository,
 then reinstall the matching archive in Frostline with `pnpm add whack-game-sdk@file:vendor/<archive>`.
 
-### Standalone distance test
-
-After the page entry module loads, the host can start a round and await the local player's result:
-
-```js
-const { distanceMeters } = await window.frostline.startDistanceMatch()
-```
-
-The call waits for game initialization. Call it from the title or after a result; an overlapping
-run rejects the promise. All players start on the glacier course with a 60-second real-time clock.
+All players start on the glacier course with a 60-second real-time clock.
 The score is the cumulative forward distance skied, rounded down to whole metres. Respawning
 costs time, the teleport adds no distance, and skiing the same stretch again counts. Crossing
 the finish starts another lap. The clock continues in the background; a suspended page delivers
 its result when the browser resumes.
+
+The standalone visual scripts in `scripts/shots.mjs` and `scripts/poses.mjs` run against the single-player build on `main`.
 
 ## Course (≈ 2.3 km, 8 sections, 7 checkpoints)
 

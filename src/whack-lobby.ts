@@ -8,6 +8,8 @@ export async function startWhackLobby(root: HTMLElement, surface: HTMLElement, r
   const sdk = await createGameSdkFromConfig({
     root,
     appBridge,
+    requireCommunityRoom: true,
+    title: '霜线·零点',
     game: {
       async start({ container, signal, finish }) {
         const game = await ready

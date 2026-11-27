@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { checkDistanceMatch } from './check-distance-match.mjs'
 
 // Exercise the shipped SDK with two isolated browser sessions and the documented wire protocol.
 export async function checkWhackLobby(browser, baseUrl, screenshotsDir) {
@@ -113,7 +114,7 @@ export async function checkWhackLobby(browser, baseUrl, screenshotsDir) {
     for (const page of [host, guest]) {
       await page.locator('.whack-sdk-game #frostline [data-screen="hud"].is-active').waitFor()
       await page.waitForFunction(() => window.__game.game.hud().distanceMeters > 3)
-      assert.equal(await page.locator('.whack-duel-started-dialog[open]').count(), 0)
+      assert.equal(await page.locator('.whack-duel-notice-dialog[open]').count(), 0)
     }
     const notice = spectator.getByRole('dialog', { name: '游戏已开始' })
     await notice.waitFor()
@@ -131,9 +132,10 @@ export async function checkWhackLobby(browser, baseUrl, screenshotsDir) {
 
     const lateSpectator = await open(20004)
     assert.equal(await lateSpectator.locator('.whack-duel-match-status').isVisible(), true)
-    assert.equal(await lateSpectator.locator('.whack-duel-started-dialog[open]').count(), 0)
+    assert.equal(await lateSpectator.locator('.whack-duel-notice-dialog[open]').count(), 0)
 
-    await host.clock.fastForward(60_000)
+    await checkDistanceMatch(host)
+    await host.clock.fastForward(2000)
     await host.locator('.whack-settlement[data-status="waiting"]').waitFor()
     assert.match(await host.locator('.whack-settlement-score dd').innerText(), /^\d+ 米$/)
     await guest.clock.fastForward(60_000)

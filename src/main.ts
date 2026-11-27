@@ -22,20 +22,12 @@ function registerPwa(): void {
 
 registerPwa()
 
-type StartDistanceMatch = () => Promise<{ distanceMeters: number }>
-
 export type FrostlineGame = {
-  playDistanceMatch(signal?: AbortSignal): ReturnType<StartDistanceMatch>
+  playDistanceMatch(signal: AbortSignal): Promise<{ distanceMeters: number }>
   stop(): void
 }
 
-declare global {
-  interface Window {
-    frostline: { startDistanceMatch: StartDistanceMatch }
-  }
-}
-
-async function boot(hosted: boolean): Promise<FrostlineGame> {
+async function boot(): Promise<FrostlineGame> {
   const canvas = document.querySelector<HTMLCanvasElement>('#game')!
   const firstRun = safeGet(SAVE_KEY) === null
   const save = new SaveStore()
@@ -156,7 +148,7 @@ async function boot(hosted: boolean): Promise<FrostlineGame> {
       })
       window.setTimeout(() => ui.showResults(run, newBest, newlyUnlocked), 1500)
     },
-  }, hosted ? 'glacier' : save.data.selectedScene)
+  }, 'glacier')
   game.motionReduced = save.data.reducedMotion
   const g = game
 
@@ -176,8 +168,6 @@ async function boot(hosted: boolean): Promise<FrostlineGame> {
       if (g.takeStepped() || g.mode !== 'playing') input.endFrame()
     },
   })
-  if (!hosted) loop.start()
-
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) pause()
   })
@@ -195,12 +185,8 @@ async function boot(hosted: boolean): Promise<FrostlineGame> {
     ui.notice(i18n.t(status === 'denied' ? 'tilt.denied' : 'tilt.unsupported'))
   }
   touch.setMode(save.data.steerMode, save.data.steerSensitivity, false)
-  if (!hosted) window.setTimeout(() => { if (ui.screen === 'boot') ui.show('title') }, 250)
   // A lobby gesture can unlock audio before the opening broadcast arrives.
-  const unlock = () => {
-    audio.unlock()
-    if (!hosted) audio.startMusic()
-  }
+  const unlock = () => audio.unlock()
   window.addEventListener('pointerdown', unlock, { once: true })
   window.addEventListener('keydown', unlock, { once: true })
 
@@ -208,27 +194,26 @@ async function boot(hosted: boolean): Promise<FrostlineGame> {
   ;(window as unknown as { __game: unknown }).__game = { game: g, ui, input, save, touch }
   return {
     async playDistanceMatch(signal) {
-      signal?.throwIfAborted()
+      signal.throwIfAborted()
       if (g.mode !== 'attract' && ui.screen !== 'distanceResults' && ui.screen !== 'results') {
         throw new Error('A run is already in progress')
       }
       const match = startRun(true)!
-      if (hosted) loop.start()
+      loop.start()
       await new Promise<void>((resolve, reject) => {
         // Physics also checks the deadline when the browser delays this timer.
         const timer = window.setTimeout(() => {
-          signal?.removeEventListener('abort', abort)
+          signal.removeEventListener('abort', abort)
           resolve()
         }, Math.ceil(match.secondsLeft * 1000))
         function abort() {
           window.clearTimeout(timer)
-          reject(signal?.reason)
+          reject(signal.reason)
         }
-        signal?.addEventListener('abort', abort, { once: true })
+        signal.addEventListener('abort', abort, { once: true })
       })
-      signal?.throwIfAborted()
+      signal.throwIfAborted()
       g.mode = 'ended'
-      if (!hosted) ui.showDistanceResults(match.distanceMeters)
       return { distanceMeters: match.distanceMeters }
     },
     stop() {
@@ -250,28 +235,16 @@ function safeGet(key: string): string | null {
   }
 }
 
-const roomLink = new URLSearchParams(location.search)
-if (roomLink.has('group_id') || roomLink.has('game_id')) {
-  const surface = document.querySelector<HTMLElement>('#frostline')!
-  const root = document.querySelector<HTMLElement>('#whack-root')!
-  surface.hidden = true
-  root.hidden = false
-  // Prepare WebGL while the lobby loads so the opening broadcast starts the clock promptly.
-  const ready = boot(true)
-  void ready.catch(error => console.error('Distance race initialization failed', error))
-  void import('./whack-lobby').then(({ startWhackLobby }) => startWhackLobby(root, surface, ready))
-    .catch(error => {
-      console.error('WhackGameSDK initialization failed', error)
-      showStartupError(root, '无法打开对战大厅，请检查房间链接和游戏配置。')
-    })
-} else {
-  const ready = boot(false)
-  window.frostline = { startDistanceMatch: async () => (await ready).playDistanceMatch() }
-  void ready.catch(error => {
-    console.error(error)
-    showStartupError(document.querySelector<HTMLElement>('#ui')!, 'Failed to start Frostline.')
+const surface = document.querySelector<HTMLElement>('#frostline')!
+const root = document.querySelector<HTMLElement>('#whack-root')!
+// Prepare WebGL while the lobby loads so the opening broadcast starts the clock promptly.
+const ready = boot()
+void ready.catch(error => console.error('Distance race initialization failed', error))
+void import('./whack-lobby').then(({ startWhackLobby }) => startWhackLobby(root, surface, ready))
+  .catch(error => {
+    console.error('WhackGameSDK initialization failed', error)
+    showStartupError(root, '无法打开对战大厅，请检查游戏发布包。')
   })
-}
 
 function showStartupError(root: HTMLElement, message: string): void {
   const notice = document.createElement('div')

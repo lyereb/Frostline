@@ -16,6 +16,8 @@ declare module 'whack-game-sdk' {
   export function createGameSdkFromConfig(options: {
     root: HTMLElement
     appBridge: AppBridge
+    requireCommunityRoom: boolean
+    title: string
     game: {
       start(context: RoundContext): Promise<void>
       stop(): void
