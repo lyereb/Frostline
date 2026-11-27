@@ -110,15 +110,17 @@ export async function checkWhackLobby(browser, baseUrl, screenshotsDir) {
     const host = await open(20001, mobile)
     const guest = await open(20002, mobile)
     const spectator = await open(20003, { width: 390, height: 844 })
-    const apply = guest.getByRole('button', { name: '报名', exact: true })
+    assert.equal(await guest.getByRole('button', { name: '报名', exact: true }).count(), 0)
+    const emptySeat = guest.getByRole('button', { name: '加入红方' })
     const start = host.getByRole('button', { name: '开始对战' })
-    for (const button of [apply, start]) {
+    for (const button of [emptySeat, start]) {
       const bounds = await button.boundingBox()
       assert.ok(bounds && bounds.y >= 0 && bounds.y + bounds.height <= mobile.height)
     }
     assert.ok(await guest.locator('.whack-duel-rules-text').evaluate(el => el.scrollHeight > el.clientHeight))
     if (screenshotsDir) await guest.screenshot({ path: `${screenshotsDir}/whack-mobile-lobby.png` })
-    await apply.click()
+    await emptySeat.click()
+    await guest.getByRole('button', { name: '取消报名', exact: true }).waitFor()
     await start.click()
     for (const page of [host, guest]) {
       await page.locator('.whack-sdk-game #frostline [data-screen="hud"].is-active').waitFor()

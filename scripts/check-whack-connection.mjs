@@ -14,10 +14,13 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     assert.equal(await page.locator('.whack-duel-seat:enabled').count(), 0)
     assert.equal(await notice.getByRole('button').count(), 1)
     await notice.getByRole('button', { name: '知道了' }).click()
-    const action = page.getByRole('button', { name: /^(报名|开始对战)$/ })
-    assert.equal(await action.isDisabled(), true)
-    const footer = await action.boundingBox()
-    assert.ok(footer && footer.y >= 0 && footer.y + footer.height <= 620)
+    assert.equal(await page.getByRole('button', { name: '报名', exact: true }).count(), 0)
+    const start = page.getByRole('button', { name: '开始对战' })
+    if (await start.isVisible()) {
+      assert.equal(await start.isDisabled(), true)
+      const footer = await start.boundingBox()
+      assert.ok(footer && footer.y >= 0 && footer.y + footer.height <= 620)
+    }
     assert.equal(await page.getByRole('button', { name: '重新连接' }).isVisible(), false)
     await page.getByRole('button', { name: '调试', exact: true }).click()
     const logDialog = page.locator('.whack-duel-log-dialog[open]')
