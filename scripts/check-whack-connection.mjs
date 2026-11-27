@@ -13,7 +13,7 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     assert.equal(await page.locator('.whack-duel-seat:enabled').count(), 0)
     assert.equal(await notice.getByRole('button').count(), 1)
     await notice.getByRole('button', { name: '知道了' }).click()
-    await page.getByRole('button', { name: '日志', exact: true }).click()
+    await page.getByRole('button', { name: '调试', exact: true }).click()
     const logDialog = page.locator('.whack-duel-log-dialog[open]')
     await logDialog.waitFor()
     const log = await logDialog.locator('pre').innerText()
@@ -29,6 +29,10 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     await page.getByRole('dialog', { name: '服务器连接失败' }).waitFor()
     if (screenshotsDir) await page.screenshot({ path: `${screenshotsDir}/whack-connection-failed.png` })
     await checkFailure(page, /缺少 group_id/)
+    await page.getByRole('button', { name: '调试', exact: true }).click()
+    await page.getByRole('button', { name: '调用 JSQueryInitInfo' }).click()
+    assert.match(await page.locator('.whack-duel-log-dialog pre').innerText(), /JSQueryInitInfo 调用失败[\s\S]+bridge_missing/)
+    await page.getByRole('dialog', { name: '调试' }).getByRole('button', { name: '关闭', exact: true }).click()
     await page.goto(`${baseUrl}?group_id=wrong&game_id=31&token=fake-url-secret`)
     await checkFailure(page, /无效字段：group_id、chat_room_id/)
     await page.goto(roomUrl)
@@ -36,10 +40,14 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
 
     // A complete room link still keeps the lobby visible on an API error.
     await context.addInitScript(() => {
+      window.initInfoCalls = 0
       window.WKWebViewJavascriptBridge = {
-        JSQueryInitInfo: () => JSON.stringify({ user: {
-          user_id: '20001', auth_token: 'test-http-secret', im_token: 'test-wim-secret',
-        } }),
+        JSQueryInitInfo() {
+          window.initInfoCalls++
+          return JSON.stringify({ user: {
+            user_id: '20001', nickname: '测试玩家', auth_token: 'test-http-secret', im_token: 'test-wim-secret',
+          } })
+        },
       }
     })
     let calls = 0
@@ -74,6 +82,14 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     })
     await page.goto(roomUrl)
     await checkFailure(page, /HTTP 503/)
+    await page.getByRole('button', { name: '调试', exact: true }).click()
+    await page.getByRole('button', { name: '调用 JSQueryInitInfo' }).click()
+    const debugLog = await page.locator('.whack-duel-log-dialog pre').innerText()
+    assert.match(debugLog, /JSQueryInitInfo 调用成功[\s\S]+"id": "20001"[\s\S]+"hasHttpCredential": true[\s\S]+"hasWimCredential": true/)
+    assert.doesNotMatch(debugLog, /test-http-secret|test-wim-secret/)
+    assert.equal(await page.evaluate(() => window.initInfoCalls), 2)
+    if (screenshotsDir) await page.screenshot({ path: `${screenshotsDir}/whack-app-debug.png` })
+    await page.getByRole('dialog', { name: '调试' }).getByRole('button', { name: '关闭', exact: true }).click()
     await page.getByRole('button', { name: '重新连接' }).click()
     await checkFailure(page, /WIM WebSocket 连接已断开/)
     await page.getByRole('button', { name: '重新连接' }).click()
