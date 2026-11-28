@@ -104,6 +104,11 @@ export async function checkWhackConnection(browser, baseUrl, screenshotsDir) {
     await page.getByRole('button', { name: '调试', exact: true }).click()
     await page.getByRole('button', { name: '调用 JSQueryInitInfo' }).click()
     const debugLog = await page.locator('.whack-duel-log-dialog pre').innerText()
+    const requestId = debugLog.match(/HTTP 发送 #(\d+)/)?.[1]
+    assert.ok(requestId)
+    assert.match(debugLog, new RegExp(`HTTP 响应 #${requestId}`))
+    assert.match(debugLog, /"Authorization": "\[已隐藏\]"/)
+    assert.match(debugLog, /"status": 503/)
     assert.match(debugLog, /JSQueryInitInfo 调用成功[\s\S]+"bridge": "window.Android"[\s\S]+"id": "20001"[\s\S]+"hasHttpCredential": true[\s\S]+"hasWimCredential": true/)
     assert.doesNotMatch(debugLog, /test-http-secret|test-wim-secret/)
     assert.equal(await page.evaluate(() => window.initInfoCalls), 2)

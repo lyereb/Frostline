@@ -439,7 +439,7 @@ packages:
         optional: true
 
   whack-game-sdk@file:vendor/whack-game-sdk-0.1.9.tgz:
-    resolution: {integrity: sha512-pA3E/vbyLBzcEmZ4SvZkoxN/rzpH2D+y2mp2srxs3BeKPVuj/xqPSjGjJ/yksEZDZ5FoKCmy7oYbhAgNK1NguQ==, tarball: file:vendor/whack-game-sdk-0.1.9.tgz}
+    resolution: {integrity: sha512-Xk11u+JSOvwvYJuFvdhlSZQJg4O5KDL+n4uB9ar7z+N4fRwdKbsuPqT9ed2TUpVKqmAXlG/9bBPTjSRGWn3G5w==, tarball: file:vendor/whack-game-sdk-0.1.9.tgz}
     version: 0.1.9
     hasBin: true
 
